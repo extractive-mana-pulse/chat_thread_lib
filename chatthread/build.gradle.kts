@@ -52,7 +52,7 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                groupId = "com.github.YOUR_GITHUB_USERNAME"
+                groupId = "com.github.extractive-mana-pulse"
                 artifactId = "chatthread"
                 version = "1.0.0"
             }

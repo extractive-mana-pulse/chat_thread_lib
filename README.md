@@ -27,12 +27,12 @@ Add the dependency to `app/build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.YOUR_GITHUB_USERNAME:chatthread:1.0.0")
+    implementation("com.github.extractive-mana-pulse:chatthread:1.0.0")
 }
 ```
 
-Replace `YOUR_GITHUB_USERNAME` with the GitHub account that owns the repo and `1.0.0` with a
-[release tag](https://github.com/YOUR_GITHUB_USERNAME/CollapsibleChatThread/releases).
+Replace `extractive-mana-pulse` with the GitHub account that owns the repo and `1.0.0` with a
+[release tag](https://github.com/extractive-mana-pulse/chat_thread_lib/releases).
 
 ---
 
