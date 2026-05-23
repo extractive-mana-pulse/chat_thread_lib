@@ -17,9 +17,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -52,15 +59,34 @@ internal fun CommentRow(
     onReplyClick: (ThreadComment) -> Unit,
 ) {
     val comment = row.comment
+    // Coordinates captured in two places so the connector renderer can translate the toggle icon's
+    // global position into the outer Box's local space — the same space `drawBehind` paints in.
+    var boxCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    var toggleIconCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
+
+    val collapsedTargetLeftCenter: Offset? = run {
+        val box = boxCoords
+        val icon = toggleIconCoords
+        if (box == null || icon == null) null
+        else if (!box.isAttached || !icon.isAttached) null
+        else if (row.isExpanded || !row.hasReplies) null
+        else {
+            val topLeft = box.localPositionOf(icon, Offset.Zero)
+            topLeft + Offset(0f, icon.size.height / 2f)
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .onGloballyPositioned { boxCoords = it }
             .threadConnectors(
                 depth = row.depth,
                 ancestorHasMoreSiblings = row.ancestorHasMoreSiblings,
                 isLastSiblingAtDepth = row.isLastSiblingAtDepth,
                 isExpanded = row.isExpanded,
+                hasReplies = row.hasReplies,
+                collapsedTargetLeftCenter = collapsedTargetLeftCenter,
                 avatarSize = style.avatarSize,
                 indentPerLevel = style.indentPerLevel,
                 cornerRadius = style.connectorCornerRadius,
@@ -109,6 +135,7 @@ internal fun CommentRow(
                     style = style,
                     onToggle = onToggle,
                     onReplyClick = { onReplyClick(comment) },
+                    onToggleIconPositioned = { toggleIconCoords = it },
                 )
             }
         }
@@ -214,10 +241,16 @@ private fun ActionRow(
     style: ThreadStyle,
     onToggle: () -> Unit,
     onReplyClick: () -> Unit,
+    onToggleIconPositioned: (LayoutCoordinates) -> Unit,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         if (row.hasReplies) {
-            ToggleChip(row = row, style = style, onClick = onToggle)
+            ToggleChip(
+                row = row,
+                style = style,
+                onClick = onToggle,
+                onIconPositioned = onToggleIconPositioned,
+            )
             Spacer(Modifier.width(style.avatarToContentSpacing))
         }
         ReplyChip(style = style, onClick = onReplyClick)
@@ -229,7 +262,12 @@ private fun ActionRow(
  * omitted entirely if the caller didn't supply a painter (returns null).
  */
 @Composable
-private fun ToggleChip(row: VisibleRow, style: ThreadStyle, onClick: () -> Unit) {
+private fun ToggleChip(
+    row: VisibleRow,
+    style: ThreadStyle,
+    onClick: () -> Unit,
+    onIconPositioned: (LayoutCoordinates) -> Unit,
+) {
     val label = if (row.isExpanded) {
         "Hide replies"
     } else {
@@ -245,7 +283,9 @@ private fun ToggleChip(row: VisibleRow, style: ThreadStyle, onClick: () -> Unit)
             Image(
                 painter = icon,
                 contentDescription = null,
-                modifier = Modifier.size(style.avatarSize * 0.7f),
+                modifier = Modifier
+                    .size(style.avatarSize * 0.7f)
+                    .onGloballyPositioned(onIconPositioned),
             )
             Spacer(Modifier.width(style.contentVerticalGap))
         }
