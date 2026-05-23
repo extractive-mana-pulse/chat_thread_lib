@@ -98,9 +98,9 @@ to show an icon, or `null` to render a text-only chip.
 
 ```kotlin
 val style = ThreadStyle.Default.copy(
-    expandIcon   = { painterResource(R.drawable.plus_circle)  },
+    expandIcon = { painterResource(R.drawable.plus_circle) },
     collapseIcon = { painterResource(R.drawable.minus_circle) },
-    replyIcon    = { painterResource(R.drawable.reply)        },
+    replyIcon = { painterResource(R.drawable.reply) },
 )
 ```
 
@@ -126,7 +126,7 @@ All text styles are `TextStyle` fields on `ThreadStyle`. Override any of them:
 ```kotlin
 ThreadStyle.Default.copy(
     authorStyle = MaterialTheme.typography.titleSmall,
-    bodyStyle   = MaterialTheme.typography.bodyMedium,
+    bodyStyle = MaterialTheme.typography.bodyMedium,
 )
 ```
 
@@ -235,14 +235,14 @@ that adds a status-bar gradient overlay as well.
 
 Public surface lives in `com.example.chatthread`:
 
-| Symbol | Purpose |
-| --- | --- |
-| `CollapsibleChatThread(...)` | Main composable. |
-| `ThreadComment` | Data class for one comment; holds `replies: List<ThreadComment>`. |
-| `ThreadTag` | Colored badge used on a comment. |
-| `ThreadStyle` | All visual configuration. `ThreadStyle.Default` + `.copy(...)` for tweaks. |
-| `ThreadState` | Holder for the set of expanded ids; has `toggle`, `expand`, `collapse`. |
-| `rememberThreadState(initiallyExpanded)` | Creates a saveable `ThreadState`. |
+| Symbol                                   | Purpose                                                                    |
+|------------------------------------------|----------------------------------------------------------------------------|
+| `CollapsibleChatThread(...)`             | Main composable.                                                           |
+| `ThreadComment`                          | Data class for one comment; holds `replies: List<ThreadComment>`.          |
+| `ThreadTag`                              | Colored badge used on a comment.                                           |
+| `ThreadStyle`                            | All visual configuration. `ThreadStyle.Default` + `.copy(...)` for tweaks. |
+| `ThreadState`                            | Holder for the set of expanded ids; has `toggle`, `expand`, `collapse`.    |
+| `rememberThreadState(initiallyExpanded)` | Creates a saveable `ThreadState`.                                          |
 
 Everything under `com.example.chatthread.internal` is an implementation detail and may change
 without notice.
